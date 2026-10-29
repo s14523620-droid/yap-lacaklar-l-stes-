@@ -1,0 +1,2 @@
+# yapılacaklar lıstesı
+ödev
