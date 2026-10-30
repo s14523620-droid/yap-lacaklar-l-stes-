@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>yapılacaklar listeniz</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 15px;
+      box-sizing: border-box;
+    }
+
+    .kutu {
+      background-color: white;
+      width: 100%;
+      max-width: 500px;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      text-align: center;
+      color: #5a3e9b;
+      margin-top: 0;
+    }
+
+    form {
+      display: flex;
+      gap: 8px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border: 2px solid #c9b8f0;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #764ba2;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .ekle { background-color: #764ba2; }
+    .ekle:hover { background-color: #5a3e9b; }
+    .bitti-btn { background-color: #2ecc71; padding: 6px 10px; }
+    .sil-btn { background-color: #e74c3c; padding: 6px 10px; }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #f3eefc;
+      border-left: 6px solid #764ba2;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="kutu">
+    <h1>yapılacaklar listeniz</h1>
+    <p class="alt-yazi">yapılacak işlerinizi ekleyin</p>
+    <form id="form">
+      <input type="text" id="gorev" placeholder="Örn: Ödevimi yap" required>
+      <button type="submit" class="ekle">Ekle</button>
+    </form>
+
+    <ul id="liste"></ul>
+    <p id="bos">Henüz görev eklemediniz</p>
+  </div>
+
+  <script>
+
+    var form = document.getElementById("form");
+    var gorevKutusu = document.getElementById("gorev");
+    var liste = document.getElementById("liste");
+    var bos = document.getElementById("bos");
+    var gorevler = JSON.parse(localStorage.getItem("gorevler")) || [];
+
+    function goster() {
+      liste.innerHTML = "";
+
+      for (var i = 0; i < gorevler.length; i++) {
+        var li = document.createElement("li");
+        if (gorevler[i].bitti) {
+          li.className = "tamam";
+        }
+
+        var yazi = document.createElement("span");
+        yazi.textContent = gorevler[i].metin;
+
+        var butonlar = document.createElement("div");
+        butonlar.className = "butonlar";
+
+        var bitti = document.createElement("button");
+        bitti.className = "bitti-btn";
+        bitti.textContent = gorevler[i].bitti ? "Geri Al" : "Bitti";
+        bitti.setAttribute("onclick", "durumDegistir(" + i + ")");
+
+        var sil = document.createElement("button");
+        sil.className = "sil-btn";
+        sil.textContent = "Sil";
+        sil.setAttribute("onclick", "gorevSil(" + i + ")");
+
+        butonlar.appendChild(bitti);
+        butonlar.appendChild(sil);
+        li.appendChild(yazi);
+        li.appendChild(butonlar);
+        liste.appendChild(li);
+      }
+
+      bos.style.display = gorevler.length === 0 ? "block" : "none";
+      localStorage.setItem("gorevler", JSON.stringify(gorevler));
+    }
+
+    function durumDegistir(sira) {
+      gorevler[sira].bitti = !gorevler[sira].bitti;
+      goster();
+    }
+
+    function gorevSil(sira) {
+      gorevler.splice(sira, 1);
+      goster();
+    }
+
+    // Ekle butonuna basılınca (veya Enter'a basılınca)
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var metin = gorevKutusu.value.trim();
+      if (metin === "") return;
+
+      gorevler.push({ metin: metin, bitti: false });
+      gorevKutusu.value = "";
+      goster();
+    });
+
+    goster();
+  </script>
+</body>
+</html>
